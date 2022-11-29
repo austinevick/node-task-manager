@@ -3,13 +3,16 @@ const router = require("./routes/routes");
 const app = express();
 app.use(express.json());
 require('dotenv').config();
-const db = require('./db/database')
+const db = require('./db/database');
+const errorHandler = require("./middlewares/error_handler");
 app.use('/api/v1/tasks',router)
 
+
+
+app.use(errorHandler)
+
+
 const port = 3000;
-
-
-
 const start = async ()=>{
     try {
         await db(process.env.MONGO_URL);

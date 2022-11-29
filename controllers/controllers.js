@@ -1,51 +1,49 @@
+const { createCustomError } = require('../errors/custom_error');
+const asyncWrapper = require('../middlewares/async');
 const task = require('../model/task')
 
 
-const getAllTasks = async(req,res)=>{
+const getAllTasks =asyncWrapper(async(req,res)=>{
 const allTasks = await task.find({});
 res.status(200).json(allTasks);
+});
 
-}
-
-const createTask =async (req,res)=>{
+const createTask = asyncWrapper( async (req,res)=>{
    const newTask = await task.create(req.body);
    res.status(201).json(newTask);
+    });
     
-    }
-    
-const getTaskById =async (req,res)=>{
+const getTaskById =asyncWrapper( async (req,res,next)=>{
   const {id:taskId} = req.params;
   const singleTask = await task.findOne({_id:taskId});
   if(!singleTask){
-    return res.status(404).json({msg:'Task was not found!'})
+    return next(createCustomError('Task not found',404));
   }
         res.status(200).json({singleTask});
-    }
+    });
 
-const updateTask =async (req,res)=>{
+const updateTask =asyncWrapper( async (req,res)=>{
     const {id:taskId} = req.params;
   const singleTask = await task.findOneAndUpdate({_id:taskId},req.body,
     {new:true,runValidators:true});
   if(!singleTask){
-    return res.status(404).json({msg:'Task was not found!'})
+    return next(createCustomError('Task not found',404));
+
   }
     res.status(200).json({singleTask});
-}
+});
             
-const deleteTask =async (req,res)=>{
+const deleteTask =asyncWrapper(async (req,res)=>{
    const {id:taskId} = req.params;
   const singleTask = await task.findOneAndDelete({_id:taskId});
   if(!singleTask){
-    return res.status(404).json({msg:'Task was not found!'})
+    return next(createCustomError('Task not found',404));
+
   }
-    res.status(200).json({singleTask});
-                
-    }
+    res.status(200).json({msg:'Task was successfully deleted'});         
+    });
                 
                           
-
-
-
 module.exports = {
     getAllTasks,
     createTask,
